@@ -34,21 +34,13 @@ levels(mtcars$am) <- c("Auto", "Manual")
 
 ## Graphics
 
-We begin by plotting boxplots of the variable "mpg" when "am" is "Auto" or "Manual".
+We begin by plotting boxplots of the variable "mpg" when "am" is "Auto" or "Manual" (see Figure 1 in the appendix).
 
-```{r}
-plot(mpg ~ am, data = mtcars, main = "Mpg by transmission type", xlab = "Transmission type", ylab = "Miles per gallon")
-```
+This plot hints at an increase in mpg when gearing was manual but this data may have other variables which may play a bigger role in determination of mpg.
 
-The graph above hints at an increase in mpg when gearing was manual but this data may have other variables which may play a bigger role in determination of mpg.
+We then plot the relationships between all the variables of the dataset (see Figure 2 in the appendix).
 
-We then plot the relationships between all the variables of the dataset.
-
-```{r}
-pairs(mtcars, panel = panel.smooth, main = "Pairs graph for MTCars")
-```
-
-We may note that variables like "cyl", "disp", "hp", "drat", "wt", "vs" and "am" seem highky correlated to "mpg".
+We may note that variables like "cyl", "disp", "hp", "drat", "wt", "vs" and "am" seem highly correlated to "mpg".
 
 ## Inference
 
@@ -78,7 +70,7 @@ The Wilcoxon test also rejects the null hypothesis that the mileage data of the 
 
 First we need to select a model, we proceed by using AIC in a stepwise algorithm.
 
-```{r}
+```{r results = 'hide'}
 model.all <- lm(mpg ~ ., data = mtcars)
 model <- step(model.all, direction="both")
 summary(model)
@@ -99,14 +91,7 @@ The regression suggests that, other variables remaining constant, manual transmi
 
 ### Residual analysis
 
-We begin by studying the residual plots.
-
-```{r}
-par(mfrow = c(2, 2))
-plot(model)
-```
-
-The residual plots allow us to verify some assumptions made before.
+We begin by studying the residual plots (see Figure 3 in the appendix). These plots allow us to verify some assumptions made before.
 
 3. The Residuals vs Fitted plot seem to verify the independance assumption as the points are randomly scattered on the plot.
 1. The Normal Q-Q plot seem to indicate that the residuals are normally distributed as the points hug the line closely.
@@ -118,7 +103,6 @@ We begin by computing the leverages for the "mtcars" dataset.
 
 ```{r}
 leverage <- hatvalues(model)
-round(leverage, 3)
 ```
 
 Are any of the observations in the dataset outliers ? We find the outliers by selecting the observations with a hatvalue > 0.5.
@@ -133,11 +117,31 @@ Next we look at the Dfbetas of the observations.
 
 ```{r}
 influential <- dfbetas(model)
-round(influential, 3)
 ```
 
 Are any of the observations in the dataset influential ? We find the influential observations by selecting the ones with a dfbeta > 1 in magnitude.
 
 ```{r}
 influential[which(abs(influential) > 1)]
+```
+
+## Appendix
+
+### Figure 1 : Boxplots of "mpg" vs. "am"
+
+```{r fig.width = 10, fig.height = 10}
+plot(mpg ~ am, data = mtcars, main = "Mpg by transmission type", xlab = "Transmission type", ylab = "Miles per gallon")
+```
+
+### Figure 2 : Pairs graph
+
+```{r fig.width = 10, fig.height = 10}
+pairs(mtcars, panel = panel.smooth, main = "Pairs graph for MTCars")
+```
+
+### Figure 3 : Residual plots
+
+```{r fig.width = 10, fig.height = 10}
+par(mfrow = c(2, 2))
+plot(model)
 ```
