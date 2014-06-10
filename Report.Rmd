@@ -1,6 +1,8 @@
 Motor Trends : Automatic or Manual transmission for better mileage ?
 ========================================================
 
+**P. Paquay**
+
 ## Executive summary
 
 In this report we try to answer the question : "Is automatic or manual transmission better for mpg ?". To answer this question we used a dataset from the 1974 Motor Trend US magazine, and ran some statistical tests and a regression analysis. On one hand the statistical tests show (without controlling for other car design features) a difference in mean of about 7 miles more for the manual transmitted cars. On the other hand, the regression analysis indicate that by taking into account other variables like horse power and weight, manual transmitted cars are only 1.8 miles better than automatic transmitted cars and also that this result is not significant.
@@ -12,9 +14,7 @@ The first step of our analysis is simply to load and take a look at the data.
 ```{r}
 data(mtcars)
 str(mtcars)
-summary(mtcars)
 ```
-
 
 Now we coerce the "cyl", "vs", "gear", "carb" and "am" variables into factor variables.
 
@@ -129,19 +129,19 @@ influential[which(abs(influential) > 1)]
 
 ### Figure 1 : Boxplots of "mpg" vs. "am"
 
-```{r fig.width = 10, fig.height = 10}
+```{r fig.width = 12, fig.height = 12}
 plot(mpg ~ am, data = mtcars, main = "Mpg by transmission type", xlab = "Transmission type", ylab = "Miles per gallon")
 ```
 
 ### Figure 2 : Pairs graph
 
-```{r fig.width = 10, fig.height = 10}
+```{r fig.width = 12, fig.height = 12}
 pairs(mtcars, panel = panel.smooth, main = "Pairs graph for MTCars")
 ```
 
 ### Figure 3 : Residual plots
 
-```{r fig.width = 10, fig.height = 10}
+```{r fig.width = 12, fig.height = 12}
 par(mfrow = c(2, 2))
 plot(model)
 ```
