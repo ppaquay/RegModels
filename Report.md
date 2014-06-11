@@ -126,11 +126,41 @@ First we need to select a model, we proceed by using AIC in a stepwise algorithm
 ```r
 model.all <- lm(mpg ~ ., data = mtcars)
 model <- step(model.all, direction = "both")
-summary(model)
 ```
 
 
-The AIC algorithm tells us to consider "cyl", "wt" and "hp" as confounding variables. The individual p-values allows us to reject the hypothesis that the coefiicients are null. The adjusted r-squared is 0.8401, so we may conclude that more than 84% of the variation is explained by the model.
+
+```r
+summary(model)
+```
+
+```
+## 
+## Call:
+## lm(formula = mpg ~ cyl + hp + wt + am, data = mtcars)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+## -3.939 -1.256 -0.401  1.125  5.051 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)  33.7083     2.6049   12.94  7.7e-13 ***
+## cyl6         -3.0313     1.4073   -2.15   0.0407 *  
+## cyl8         -2.1637     2.2843   -0.95   0.3523    
+## hp           -0.0321     0.0137   -2.35   0.0269 *  
+## wt           -2.4968     0.8856   -2.82   0.0091 ** 
+## amManual      1.8092     1.3963    1.30   0.2065    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 2.41 on 26 degrees of freedom
+## Multiple R-squared:  0.866,	Adjusted R-squared:  0.84 
+## F-statistic: 33.6 on 5 and 26 DF,  p-value: 1.51e-10
+```
+
+
+The AIC algorithm tells us to consider "cyl", "wt" and "hp" as confounding variables. The individual p-values allows us to reject the hypothesis that the coefficients are null. The adjusted r-squared is 0.8401, so we may conclude that more than 84% of the variation is explained by the model.
 
 
 ```r
@@ -219,7 +249,7 @@ plot(mpg ~ am, data = mtcars, main = "Mpg by transmission type", xlab = "Transmi
     ylab = "Miles per gallon")
 ```
 
-![plot of chunk unnamed-chunk-12](figure/unnamed-chunk-12.png) 
+![plot of chunk unnamed-chunk-13](figure/unnamed-chunk-13.png) 
 
 
 ### Figure 2 : Pairs graph
@@ -229,7 +259,7 @@ plot(mpg ~ am, data = mtcars, main = "Mpg by transmission type", xlab = "Transmi
 pairs(mtcars, panel = panel.smooth, main = "Pairs graph for MTCars")
 ```
 
-![plot of chunk unnamed-chunk-13](figure/unnamed-chunk-13.png) 
+![plot of chunk unnamed-chunk-14](figure/unnamed-chunk-14.png) 
 
 
 ### Figure 3 : Residual plots
@@ -240,5 +270,5 @@ par(mfrow = c(2, 2))
 plot(model)
 ```
 
-![plot of chunk unnamed-chunk-14](figure/unnamed-chunk-14.png) 
+![plot of chunk unnamed-chunk-15](figure/unnamed-chunk-15.png) 
 

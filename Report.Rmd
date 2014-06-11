@@ -73,10 +73,13 @@ First we need to select a model, we proceed by using AIC in a stepwise algorithm
 ```{r results = 'hide'}
 model.all <- lm(mpg ~ ., data = mtcars)
 model <- step(model.all, direction="both")
+```
+
+```{r}
 summary(model)
 ```
 
-The AIC algorithm tells us to consider "cyl", "wt" and "hp" as confounding variables. The individual p-values allows us to reject the hypothesis that the coefiicients are null. The adjusted r-squared is `r summary(model)$adj.r.squared`, so we may conclude that more than `r round(summary(model)$adj.r.squared * 100)`% of the variation is explained by the model.
+The AIC algorithm tells us to consider "cyl", "wt" and "hp" as confounding variables. The individual p-values allows us to reject the hypothesis that the coefficients are null. The adjusted r-squared is `r summary(model)$adj.r.squared`, so we may conclude that more than `r round(summary(model)$adj.r.squared * 100)`% of the variation is explained by the model.
 
 ```{r}
 model0 <- lm(mpg ~ am, data = mtcars)
@@ -129,19 +132,19 @@ influential[which(abs(influential) > 1)]
 
 ### Figure 1 : Boxplots of "mpg" vs. "am"
 
-```{r fig.width = 12, fig.height = 12}
+```{r fig.width = 10, fig.height = 10}
 plot(mpg ~ am, data = mtcars, main = "Mpg by transmission type", xlab = "Transmission type", ylab = "Miles per gallon")
 ```
 
 ### Figure 2 : Pairs graph
 
-```{r fig.width = 12, fig.height = 12}
+```{r fig.width = 10, fig.height = 10}
 pairs(mtcars, panel = panel.smooth, main = "Pairs graph for MTCars")
 ```
 
 ### Figure 3 : Residual plots
 
-```{r fig.width = 12, fig.height = 12}
+```{r fig.width = 10, fig.height = 10}
 par(mfrow = c(2, 2))
 plot(model)
 ```
