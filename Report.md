@@ -5,7 +5,7 @@ Motor Trends : Automatic or Manual transmission for better mileage ?
 
 ## Executive summary
 
-In this report we try to answer the question : "Is automatic or manual transmission better for mpg ?". To answer this question we used a dataset from the 1974 Motor Trend US magazine, and ran some statistical tests and a regression analysis. On one hand the statistical tests show (without controlling for other car design features) a difference in mean of about 7 miles more for the manual transmitted cars. On the other hand, the regression analysis indicate that by taking into account other variables like horse power and weight, manual transmitted cars are only 1.8 miles better than automatic transmitted cars and also that this result is not significant.
+In this report we try to answer the question : "Is automatic or manual transmission better for mpg ?". To answer this question we used a dataset from the 1974 Motor Trend US magazine, and ran some statistical tests and a regression analysis. On one hand the statistical tests show (without controlling for other car design features) a difference in mean of about 7 miles more for the manual transmitted cars. On the other hand, the regression analysis indicate that by taking into account other variables like horse power and weight, manual transmitted cars are only 1.8 miles better than automatic transmitted cars and also that this result is not significant. So to get a better mileage it's probably better to consider cars of a certain weight and horse power than to consider manual or automatic transmission.
 
 ## Cleaning data
 
@@ -55,13 +55,9 @@ levels(mtcars$am) <- c("Auto", "Manual")
 
 ## Graphics
 
-We begin by plotting boxplots of the variable "mpg" when "am" is "Auto" or "Manual" (see Figure 1 in the appendix).
+We begin by plotting boxplots of the variable "mpg" when "am" is "Auto" or "Manual" (see Figure 1 in the appendix). This plot hints at an increase in mpg when gearing was manual but this data may have other variables which may play a bigger role in determination of mpg.
 
-This plot hints at an increase in mpg when gearing was manual but this data may have other variables which may play a bigger role in determination of mpg.
-
-We then plot the relationships between all the variables of the dataset (see Figure 2 in the appendix).
-
-We may note that variables like "cyl", "disp", "hp", "drat", "wt", "vs" and "am" seem highly correlated to "mpg".
+We then plot the relationships between all the variables of the dataset (see Figure 2 in the appendix). We may note that variables like "cyl", "disp", "hp", "drat", "wt", "vs" and "am" seem highly correlated to "mpg".
 
 ## Inference
 
@@ -120,12 +116,12 @@ The Wilcoxon test also rejects the null hypothesis that the mileage data of the 
 
 ## Regression analysis
 
-First we need to select a model, we proceed by using AIC in a stepwise algorithm.
+First we need to select a model, we proceed by using AIC in a stepwise algorithm. The starting point for this algorithm is to fit a model containing all variables and then to eliminate one variable at a time to obtain an overall good fitted model.
 
 
 ```r
 model.all <- lm(mpg ~ ., data = mtcars)
-model <- step(model.all, direction = "both")
+model <- step(model.all, direction = "backward")
 ```
 
 
