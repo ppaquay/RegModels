@@ -116,12 +116,12 @@ The Wilcoxon test also rejects the null hypothesis that the mileage data of the 
 
 ## Regression analysis
 
-First we need to select a model, we proceed by using AIC in a stepwise algorithm. The starting point for this algorithm is to fit a model containing all variables and then to eliminate one variable at a time to obtain an overall good fitted model.
+First we need to select a model, we proceed by using the Akaike Information Criteria (AIC) in a stepwise algorithm. This algorithm does not evaluate the AIC for all possible models but uses a search method that compares models sequentially. Thus it bears some comparison to the classical stepwise method but with the advantage that no dubious p-values are used.
 
 
 ```r
 model.all <- lm(mpg ~ ., data = mtcars)
-model <- step(model.all, direction = "backward")
+model <- step(model.all)
 ```
 
 
