@@ -5,7 +5,7 @@ Motor Trends : Automatic or Manual transmission for better mileage ?
 
 ## Executive summary
 
-In this report we try to answer the question : "Is automatic or manual transmission better for mpg ?". To answer this question we used a dataset from the 1974 Motor Trend US magazine, and ran some statistical tests and a regression analysis. On one hand the statistical tests show (without controlling for other car design features) a difference in mean of about 7 miles more for the manual transmitted cars. On the other hand, the regression analysis indicate that by taking into account other variables like horse power and weight, manual transmitted cars are only 1.8 miles better than automatic transmitted cars and also that this result is not significant. So to get a better mileage it's probably better to consider cars of a certain weight and horse power than to consider manual or automatic transmission.
+In this report we try to answer the question : "Is automatic or manual transmission better for mpg ?". To answer this question we used a dataset from the 1974 Motor Trend US magazine, and ran some statistical tests and a regression analysis. On one hand the statistical tests show (without controlling for other car design features) a difference in mean of about 7 miles more for the manual transmitted cars. On the other hand, the regression analysis indicate that by taking into account other variables like weight and 1/4 mile time, manual transmitted cars are only 2.9 miles better than automatic transmitted cars and also that this result is less significant than to consider weight and 1/4 mile time together. So to get a better mileage it's probably better to consider cars of a certain weight and 1/4 mile time than to consider manual or automatic transmission.
 
 ## Cleaning data
 
@@ -57,7 +57,7 @@ levels(mtcars$am) <- c("Auto", "Manual")
 
 We begin by plotting boxplots of the variable "mpg" when "am" is "Auto" or "Manual" (see Figure 1 in the appendix). This plot hints at an increase in mpg when gearing was manual but this data may have other variables which may play a bigger role in determination of mpg.
 
-We then plot the relationships between all the variables of the dataset (see Figure 2 in the appendix). We may note that variables like "cyl", "disp", "hp", "drat", "wt", "vs" and "am" seem highly correlated to "mpg".
+We then plot the relationships between all the variables of the dataset (see Figure 2 in the appendix). We may note that variables like "wt", "cyl", "disp" and "hp" seem highly correlated to "mpg".
 
 ## Inference
 
@@ -116,12 +116,13 @@ The Wilcoxon test also rejects the null hypothesis that the mileage data of the 
 
 ## Regression analysis
 
-First we need to select a model, we proceed by using the Akaike Information Criteria (AIC) in a stepwise algorithm. This algorithm does not evaluate the AIC for all possible models but uses a search method that compares models sequentially. Thus it bears some comparison to the classical stepwise method but with the advantage that no dubious p-values are used.
+First we need to select a model, we proceed by using the Bayesian Information Criteria (BIC) in a stepwise algorithm. This algorithm does not evaluate the BIC for all possible models but uses a search method that compares models sequentially. Thus it bears some comparison to the classical stepwise method but with the advantage that no dubious p-values are used.
 
 
 ```r
 model.all <- lm(mpg ~ ., data = mtcars)
-model <- step(model.all)
+n <- nrow(mtcars)
+model <- step(model.all, direction = "backward", k = log(n))
 ```
 
 
@@ -133,53 +134,53 @@ summary(model)
 ```
 ## 
 ## Call:
-## lm(formula = mpg ~ cyl + hp + wt + am, data = mtcars)
+## lm(formula = mpg ~ wt + qsec + am, data = mtcars)
 ## 
 ## Residuals:
 ##    Min     1Q Median     3Q    Max 
-## -3.939 -1.256 -0.401  1.125  5.051 
+## -3.481 -1.556 -0.726  1.411  4.661 
 ## 
 ## Coefficients:
 ##             Estimate Std. Error t value Pr(>|t|)    
-## (Intercept)  33.7083     2.6049   12.94  7.7e-13 ***
-## cyl6         -3.0313     1.4073   -2.15   0.0407 *  
-## cyl8         -2.1637     2.2843   -0.95   0.3523    
-## hp           -0.0321     0.0137   -2.35   0.0269 *  
-## wt           -2.4968     0.8856   -2.82   0.0091 ** 
-## amManual      1.8092     1.3963    1.30   0.2065    
+## (Intercept)    9.618      6.960    1.38  0.17792    
+## wt            -3.917      0.711   -5.51    7e-06 ***
+## qsec           1.226      0.289    4.25  0.00022 ***
+## amManual       2.936      1.411    2.08  0.04672 *  
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
-## Residual standard error: 2.41 on 26 degrees of freedom
-## Multiple R-squared:  0.866,	Adjusted R-squared:  0.84 
-## F-statistic: 33.6 on 5 and 26 DF,  p-value: 1.51e-10
+## Residual standard error: 2.46 on 28 degrees of freedom
+## Multiple R-squared:  0.85,	Adjusted R-squared:  0.834 
+## F-statistic: 52.7 on 3 and 28 DF,  p-value: 1.21e-11
 ```
 
 
-The AIC algorithm tells us to consider "cyl", "wt" and "hp" as confounding variables. The individual p-values allows us to reject the hypothesis that the coefficients are null. The adjusted r-squared is 0.8401, so we may conclude that more than 84% of the variation is explained by the model.
+The BIC algorithm tells us to consider "wt" and "qsec" as confounding variables. The individual p-values allows us to reject the hypothesis that the coefficients are null. The adjusted r-squared is 0.8336, so we may conclude that more than 83% of the variation is explained by the model.
 
 
 ```r
-model0 <- lm(mpg ~ am, data = mtcars)
-anova(model0, model)
+anova(lm(mpg ~ am, data = mtcars), lm(mpg ~ am + wt, data = mtcars), lm(mpg ~ 
+    am + wt + qsec, data = mtcars))
 ```
 
 ```
 ## Analysis of Variance Table
 ## 
 ## Model 1: mpg ~ am
-## Model 2: mpg ~ cyl + hp + wt + am
+## Model 2: mpg ~ am + wt
+## Model 3: mpg ~ am + wt + qsec
 ##   Res.Df RSS Df Sum of Sq    F  Pr(>F)    
 ## 1     30 721                              
-## 2     26 151  4       570 24.5 1.7e-08 ***
+## 2     29 278  1       443 73.2 2.7e-09 ***
+## 3     28 169  1       109 18.0 0.00022 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
 
 
-We may notice that when we compare the model with only "am" as independant variable and our chosen model, we reject the null hypothesis that the variables "cyl", "hp" and "wt" don't contribute to the accuracy of the model.
+We may notice that when we compare the model with only "am" as independant variable and our chosen model, we reject the null hypothesis that the variables "wt" and "qsec" don't contribute to the accuracy of the model.
 
-The regression suggests that, other variables remaining constant, manual transmitted cars can drive 1.8092 more miles per gallon than automatic transmitted cars, and the results are not statistically significant.
+The regression suggests that, "wt" and "qsec" variables remaining constant, manual transmitted cars can drive 2.9358 more miles per gallon than automatic transmitted cars, and the results are statistically significant.
 
 ## Residuals and diagnostics
 
@@ -231,9 +232,11 @@ influential[which(abs(influential) > 1)]
 ```
 
 ```
-## numeric(0)
+## [1] 1.094
 ```
 
+
+This influential observation corresponds to the Chrysler Imperial.
 
 ## Appendix
 
