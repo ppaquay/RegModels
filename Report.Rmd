@@ -1,6 +1,3 @@
----
-output: pdf_document
----
 Motor Trends : Automatic or Manual transmission for better mileage ?
 ========================================================
 
