@@ -1,8 +1,3 @@
----
-output:
-  pdf_document:
-    keep_tex: yes
----
 Motor Trends : Automatic or Manual transmission for better mileage ?
 ========================================================
     
@@ -10,7 +5,7 @@ Motor Trends : Automatic or Manual transmission for better mileage ?
     
 ## Executive summary
     
-In this report we try to answer the question : "Is automatic or manual transmission better for mpg ?". To answer this question we used a dataset from the 1974 Motor Trend US magazine, and ran some statistical tests and a regression analysis. On one hand the statistical tests show (without controlling for other car design features) a difference in mean of about 7 miles more for the manual transmitted cars. On the other hand, the regression analysis indicate that by taking into account other variables like weight and 1/4 mile time, manual transmitted cars are only 2.9 miles better than automatic transmitted cars and also that this result is less significant than to consider weight and 1/4 mile time together. So to get a better mileage it's probably better to consider cars of a certain weight and 1/4 mile time than to consider manual or automatic transmission.
+In this report we try to answer the question : "Is automatic or manual transmission better for mpg ?". To answer this question we used a dataset from the 1974 Motor Trend US magazine, and ran some statistical tests and a regression analysis. On one hand the statistical tests show (without controlling for other car design features) a difference in mean of about 7 miles more for the manual transmitted cars. On the other hand, the regression analysis indicate that by taking into account other variables like weight and 1/4 mile time, manual transmitted cars are only 2.9 miles better than automatic transmitted cars and also that this result is less significant than to consider weight and 1/4 mile time together.
 
 ## Cleaning data
 
@@ -51,21 +46,21 @@ We may also run a some tests to compare the mpg means between automatic and manu
 
 We begin by using a t-test assuming that the mileage data has a normal distribution.
 
-```{r}
+```{r, results = 'hide'}
 t.test(mpg ~ am, data = mtcars)
 ```
 
-The test results clearly shows that the manual and automatic transmissions are significatively different.
+The p-value of `r t.test(mpg ~ am, data = mtcars)$p.value` clearly shows that the manual and automatic transmissions are significatively different.
 
 ### Wilcoxon test
 
-Next we use a nonparametric test to determine if there's a difference in the population means.
+Next we use a nonparametric Wilcoxon test to determine if there's a difference in the population means.
 
-```{r}
+```{r, results = 'hide'}
 wilcox.test(mpg ~ am, data = mtcars)
 ```
 
-The Wilcoxon test also rejects the null hypothesis that the mileage data of the manual and automatic transmissions are from the same population (indicating a difference).
+Here again the p-value of `r wilcox.test(mpg ~ am, data = mtcars)$p.value` allow us to reject the null hypothesis that the mileage data of the manual and automatic transmissions are from the same population (indicating a difference).
 
 ## Regression analysis
 
@@ -78,13 +73,13 @@ model <- step(model.all, direction = "backward", k = log(n))
 ```
 
 ```{r}
-summary(model)
+summary(model)$coefficients
 ```
 
-The BIC algorithm tells us to consider "wt" and "qsec" as confounding variables. The individual p-values allows us to reject the hypothesis that the coefficients are null. The adjusted r-squared is `r summary(model)$adj.r.squared`, so we may conclude that more than `r round(summary(model)$adj.r.squared * 100)`% of the variation is explained by the model.
+The BIC algorithm tells us to consider "wt" and "qsec" as confounding variables. The individual p-values allows us to reject the hypothesis that the coefficients of "wt", "qsec" and "am" are null. The adjusted r-squared is `r summary(model)$adj.r.squared`, so we may conclude that more than `r round(summary(model)$adj.r.squared * 100)`% of the variation is explained by the model.
 
 ```{r}
-anova(lm(mpg ~ am, data = mtcars), lm(mpg ~ am + wt, data = mtcars), lm(mpg ~ am + wt + qsec, data = mtcars))
+anova(lm(mpg ~ am, data = mtcars), lm(mpg ~ am + qsec, data = mtcars), lm(mpg ~ am + wt + qsec, data = mtcars))
 ```
 
 We may notice that when we compare the model with only "am" as independant variable and our chosen model, we reject the null hypothesis that the variables "wt" and "qsec" don't contribute to the accuracy of the model.
@@ -151,3 +146,10 @@ pairs(mtcars, panel = panel.smooth, main = "Pairs graph for MTCars")
 par(mfrow = c(2, 2))
 plot(model)
 ```
+
+```{r}
+library(lmtest)
+bptest(model)
+```
+
+We do not reject the null hypothesis that the variance is the same for all observations ay the 0.005 level. There is relatively weak evidence against the assumption of constant variance.

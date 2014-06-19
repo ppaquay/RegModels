@@ -1,5 +1,6 @@
 ---
 output:
+  html_document: default
   pdf_document:
     keep_tex: yes
 ---

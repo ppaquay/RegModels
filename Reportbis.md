@@ -1,8 +1,3 @@
----
-output:
-  pdf_document:
-    keep_tex: yes
----
 Motor Trends : Automatic or Manual transmission for better mileage ?
 ========================================================
     
@@ -10,7 +5,7 @@ Motor Trends : Automatic or Manual transmission for better mileage ?
     
 ## Executive summary
     
-In this report we try to answer the question : "Is automatic or manual transmission better for mpg ?". To answer this question we used a dataset from the 1974 Motor Trend US magazine, and ran some statistical tests and a regression analysis. On one hand the statistical tests show (without controlling for other car design features) a difference in mean of about 7 miles more for the manual transmitted cars. On the other hand, the regression analysis indicate that by taking into account other variables like weight and 1/4 mile time, manual transmitted cars are only 2.9 miles better than automatic transmitted cars and also that this result is less significant than to consider weight and 1/4 mile time together. So to get a better mileage it's probably better to consider cars of a certain weight and 1/4 mile time than to consider manual or automatic transmission.
+In this report we try to answer the question : "Is automatic or manual transmission better for mpg ?". To answer this question we used a dataset from the 1974 Motor Trend US magazine, and ran some statistical tests and a regression analysis. On one hand the statistical tests show (without controlling for other car design features) a difference in mean of about 7 miles more for the manual transmitted cars. On the other hand, the regression analysis indicate that by taking into account other variables like weight and 1/4 mile time, manual transmitted cars are only 2.9 miles better than automatic transmitted cars and also that this result is less significant than to consider weight and 1/4 mile time together.
 
 ## Cleaning data
 
@@ -74,25 +69,11 @@ We begin by using a t-test assuming that the mileage data has a normal distribut
 t.test(mpg ~ am, data = mtcars)
 ```
 
-```
-## 
-## 	Welch Two Sample t-test
-## 
-## data:  mpg by am
-## t = -3.767, df = 18.33, p-value = 0.001374
-## alternative hypothesis: true difference in means is not equal to 0
-## 95 percent confidence interval:
-##  -11.28  -3.21
-## sample estimates:
-##   mean in group Auto mean in group Manual 
-##                17.15                24.39
-```
-
-The test results clearly shows that the manual and automatic transmissions are significatively different.
+The p-value of 0.0014 clearly shows that the manual and automatic transmissions are significatively different.
 
 ### Wilcoxon test
 
-Next we use a nonparametric test to determine if there's a difference in the population means.
+Next we use a nonparametric Wilcoxon test to determine if there's a difference in the population means.
 
 
 ```r
@@ -103,16 +84,7 @@ wilcox.test(mpg ~ am, data = mtcars)
 ## Warning: cannot compute exact p-value with ties
 ```
 
-```
-## 
-## 	Wilcoxon rank sum test with continuity correction
-## 
-## data:  mpg by am
-## W = 42, p-value = 0.001871
-## alternative hypothesis: true location shift is not equal to 0
-```
-
-The Wilcoxon test also rejects the null hypothesis that the mileage data of the manual and automatic transmissions are from the same population (indicating a difference).
+Here again the p-value of 0.0019 allow us to reject the null hypothesis that the mileage data of the manual and automatic transmissions are from the same population (indicating a difference).
 
 ## Regression analysis
 
@@ -127,49 +99,34 @@ model <- step(model.all, direction = "backward", k = log(n))
 
 
 ```r
-summary(model)
+summary(model)$coefficients
 ```
 
 ```
-## 
-## Call:
-## lm(formula = mpg ~ wt + qsec + am, data = mtcars)
-## 
-## Residuals:
-##    Min     1Q Median     3Q    Max 
-## -3.481 -1.556 -0.726  1.411  4.661 
-## 
-## Coefficients:
-##             Estimate Std. Error t value Pr(>|t|)    
-## (Intercept)    9.618      6.960    1.38  0.17792    
-## wt            -3.917      0.711   -5.51    7e-06 ***
-## qsec           1.226      0.289    4.25  0.00022 ***
-## amManual       2.936      1.411    2.08  0.04672 *  
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-## 
-## Residual standard error: 2.46 on 28 degrees of freedom
-## Multiple R-squared:  0.85,	Adjusted R-squared:  0.834 
-## F-statistic: 52.7 on 3 and 28 DF,  p-value: 1.21e-11
+##             Estimate Std. Error t value  Pr(>|t|)
+## (Intercept)    9.618     6.9596   1.382 1.779e-01
+## wt            -3.917     0.7112  -5.507 6.953e-06
+## qsec           1.226     0.2887   4.247 2.162e-04
+## amManual       2.936     1.4109   2.081 4.672e-02
 ```
 
-The BIC algorithm tells us to consider "wt" and "qsec" as confounding variables. The individual p-values allows us to reject the hypothesis that the coefficients are null. The adjusted r-squared is 0.8336, so we may conclude that more than 83% of the variation is explained by the model.
+The BIC algorithm tells us to consider "wt" and "qsec" as confounding variables. The individual p-values allows us to reject the hypothesis that the coefficients of "wt", "qsec" and "am" are null. The adjusted r-squared is 0.8336, so we may conclude that more than 83% of the variation is explained by the model.
 
 
 ```r
-anova(lm(mpg ~ am, data = mtcars), lm(mpg ~ am + wt, data = mtcars), lm(mpg ~ am + wt + qsec, data = mtcars))
+anova(lm(mpg ~ am, data = mtcars), lm(mpg ~ am + qsec, data = mtcars), lm(mpg ~ am + wt + qsec, data = mtcars))
 ```
 
 ```
 ## Analysis of Variance Table
 ## 
 ## Model 1: mpg ~ am
-## Model 2: mpg ~ am + wt
+## Model 2: mpg ~ am + qsec
 ## Model 3: mpg ~ am + wt + qsec
 ##   Res.Df RSS Df Sum of Sq    F  Pr(>F)    
 ## 1     30 721                              
-## 2     29 278  1       443 73.2 2.7e-09 ***
-## 3     28 169  1       109 18.0 0.00022 ***
+## 2     29 353  1       368 60.9 1.7e-08 ***
+## 3     28 169  1       183 30.3 7.0e-06 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
@@ -259,3 +216,32 @@ plot(model)
 ```
 
 ![plot of chunk unnamed-chunk-15](figure/unnamed-chunk-15.png) 
+
+
+```r
+library(lmtest)
+```
+
+```
+## Loading required package: zoo
+## 
+## Attaching package: 'zoo'
+## 
+## The following objects are masked from 'package:base':
+## 
+##     as.Date, as.Date.numeric
+```
+
+```r
+bptest(model)
+```
+
+```
+## 
+## 	studentized Breusch-Pagan test
+## 
+## data:  model
+## BP = 6.187, df = 3, p-value = 0.1029
+```
+
+We do not reject the null hypothesis that the variance is the same for all observations ay the 0.005 level. There is relatively weak evidence against the assumption of constant variance.
