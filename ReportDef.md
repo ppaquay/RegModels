@@ -58,7 +58,7 @@ We then plot the relationships between all the variables of the dataset (see Fig
 
 ## Inference
 
-We may also run some tests to compare the mpg means between automatic and manual transmissions.
+We may also run some tests to compare the "mpg"" means between automatic and manual transmissions.
 
 ### T-test
 
@@ -99,51 +99,30 @@ model <- step(model.all, direction = "backward", k = log(n))
 
 
 ```r
-summary(model)
+summary(model)$coefficients
 ```
 
 ```
-## 
-## Call:
-## lm(formula = mpg ~ wt + qsec + am, data = mtcars)
-## 
-## Residuals:
-##    Min     1Q Median     3Q    Max 
-## -3.481 -1.556 -0.726  1.411  4.661 
-## 
-## Coefficients:
-##             Estimate Std. Error t value Pr(>|t|)    
-## (Intercept)    9.618      6.960    1.38  0.17792    
-## wt            -3.917      0.711   -5.51    7e-06 ***
-## qsec           1.226      0.289    4.25  0.00022 ***
-## amManual       2.936      1.411    2.08  0.04672 *  
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-## 
-## Residual standard error: 2.46 on 28 degrees of freedom
-## Multiple R-squared:  0.85,	Adjusted R-squared:  0.834 
-## F-statistic: 52.7 on 3 and 28 DF,  p-value: 1.21e-11
+##             Estimate Std. Error t value  Pr(>|t|)
+## (Intercept)    9.618     6.9596   1.382 1.779e-01
+## wt            -3.917     0.7112  -5.507 6.953e-06
+## qsec           1.226     0.2887   4.247 2.162e-04
+## amManual       2.936     1.4109   2.081 4.672e-02
 ```
 
-The BIC algorithm tells us to consider "wt" and "qsec" as confounding variables. The individual p-values allows us to reject the hypothesis that the coefficients of "wt", "qsec" and "am" are null. The adjusted r-squared is 0.8336, so we may conclude that more than 83% of the variation is explained by the model.
+The BIC algorithm tells us to consider "wt" and "qsec" as confounding variables. The individual p-values allows us to reject the hypothesis that the coefficients of "wt", "qsec" and "am" are null. The adjusted r-squared is 0.8336, so we may conclude that more than 83% of the variation is explained by the model. This model is incidentally the one chosen by R. R. Hocking in [Hock1976] (see the References subsection).
 
 
 ```r
-anova(lm(mpg ~ am, data = mtcars), lm(mpg ~ am + qsec, data = mtcars), lm(mpg ~ am + wt + qsec, data = mtcars))
+anova <- anova(lm(mpg ~ am, data = mtcars), lm(mpg ~ am + qsec, data = mtcars), lm(mpg ~ am + wt + qsec, data = mtcars))
+cbind(anova[1], anova[2], anova[3], anova[4], anova[5], anova[6])
 ```
 
 ```
-## Analysis of Variance Table
-## 
-## Model 1: mpg ~ am
-## Model 2: mpg ~ am + qsec
-## Model 3: mpg ~ am + wt + qsec
-##   Res.Df RSS Df Sum of Sq    F  Pr(>F)    
-## 1     30 721                              
-## 2     29 353  1       368 60.9 1.7e-08 ***
-## 3     28 169  1       183 30.3 7.0e-06 ***
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+##   Res.Df   RSS Df Sum of Sq     F    Pr(>F)
+## 1     30 720.9 NA        NA    NA        NA
+## 2     29 352.6  1     368.3 60.91 1.679e-08
+## 3     28 169.3  1     183.3 30.33 6.953e-06
 ```
 
 We may notice that when we compare the model with only "am" as independant variable and our chosen model, we reject the null hypothesis that the variables "wt" and "qsec" don't contribute to the accuracy of the model.
@@ -152,15 +131,12 @@ The regression suggests that, "wt" and "qsec" variables remaining constant, manu
 
 
 ```r
-confint(model)
+confint(model)[4, ]
 ```
 
 ```
-##                2.5 % 97.5 %
-## (Intercept) -4.63830 23.874
-## wt          -5.37333 -2.460
-## qsec         0.63457  1.817
-## amManual     0.04573  5.826
+##   2.5 %  97.5 % 
+## 0.04573 5.82594
 ```
 
 More accurately, we are 95% confident that the difference in miles per gallon between manual and automatic transmitted cars lies somewhere in the interval [0.0457, 5.8259].
@@ -169,7 +145,7 @@ More accurately, we are 95% confident that the difference in miles per gallon be
 
 ### Residual analysis
 
-We begin by studying the residual plots (see Figure 3 in the appendix). These plots allow us to verify some assumptions made before. We have to point that due to the small sample size 
+We begin by studying the residual plots (see Figure 3 in the appendix). These plots allow us to verify some assumptions made before. We have to point that due to the small sample size our conclusions may be biased.
 
 1. The Residuals vs Fitted plot seem to verify the independance assumption as the points are randomly scattered on the plot (a Durbin-Watson test further confirms this assumption at the 0.05 level).
 2. The Normal Q-Q plot seem to indicate that the residuals are normally distributed as the points hug the line closely (a Shapiro-Wilk test further confirms this assumption at the 0.05 level).
@@ -251,62 +227,8 @@ plot(fitted(model), sqrt(abs(rstandard(model))), xlab = "Fitted values", ylab = 
 
 ![plot of chunk unnamed-chunk-16](figure/unnamed-chunk-16.png) 
 
+### References
 
-```r
-library(lmtest)
-```
+[Far2004] Faraway, J., J., *Linear Models with R*, Chapman & Hall, 2004.
 
-```
-## Loading required package: zoo
-## 
-## Attaching package: 'zoo'
-## 
-## Les objets suivants sont masqués from 'package:base':
-## 
-##     as.Date, as.Date.numeric
-```
-
-```r
-bptest(model)
-```
-
-```
-## 
-## 	studentized Breusch-Pagan test
-## 
-## data:  model
-## BP = 6.187, df = 3, p-value = 0.1029
-```
-
-We do not reject the null hypothesis that the variance is the same for all observations at the 0.05 level. There is relatively weak evidence against the assumption of constant variance.
-
-
-```r
-dwtest(model, alternative = "two.sided")
-```
-
-```
-## 
-## 	Durbin-Watson test
-## 
-## data:  model
-## DW = 1.714, p-value = 0.2527
-## alternative hypothesis: true autocorrelation is not 0
-```
-
-In this case we do not reject the null hypothesis at the 0.05 level; there is very little evidence of nonzero autocorrelation in the residuals.
-
-
-```r
-shapiro.test(residuals(model))
-```
-
-```
-## 
-## 	Shapiro-Wilk normality test
-## 
-## data:  residuals(model)
-## W = 0.9411, p-value = 0.08043
-```
-
-We do not reject the null hypothesis that the residuals are normal at the 0.05 level.
+[Hock1976] Hocking, R., R., *The Analysis and Selection of Variables in Linear Regression*, Biometrics, Vol. 32, No. 1 (Mar., 1976), pp. 1-49.
