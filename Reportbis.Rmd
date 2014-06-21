@@ -36,11 +36,11 @@ levels(mtcars$am) <- c("Auto", "Manual")
 
 We begin by plotting boxplots of the variable "mpg" when "am" is "Auto" or "Manual" (see Figure 1 in the appendix). This plot hints at an increase in mpg when gearing was manual but this data may have other variables which may play a bigger role in determination of mpg.
 
-We then plot the relationships between all the variables of the dataset (see Figure 2 in the appendix). We may note that variables like "wt", "cyl", "disp" and "hp" seem highly correlated to "mpg".
+We then plot the relationships between all the variables of the dataset (see Figure 2 in the appendix). We may note that variables like "wt", "cyl", "disp" and "hp" seem highly correlated together.
 
 ## Inference
 
-We may also run a some tests to compare the mpg means between automatic and manual transmissions.
+We may also run some tests to compare the mpg means between automatic and manual transmissions.
 
 ### T-test
 
@@ -73,7 +73,7 @@ model <- step(model.all, direction = "backward", k = log(n))
 ```
 
 ```{r}
-summary(model)$coefficients
+summary(model)
 ```
 
 The BIC algorithm tells us to consider "wt" and "qsec" as confounding variables. The individual p-values allows us to reject the hypothesis that the coefficients of "wt", "qsec" and "am" are null. The adjusted r-squared is `r summary(model)$adj.r.squared`, so we may conclude that more than `r round(summary(model)$adj.r.squared * 100)`% of the variation is explained by the model.
@@ -84,17 +84,23 @@ anova(lm(mpg ~ am, data = mtcars), lm(mpg ~ am + qsec, data = mtcars), lm(mpg ~ 
 
 We may notice that when we compare the model with only "am" as independant variable and our chosen model, we reject the null hypothesis that the variables "wt" and "qsec" don't contribute to the accuracy of the model.
 
-The regression suggests that, "wt" and "qsec" variables remaining constant, manual transmitted cars can drive `r summary(model)$coef[4]` more miles per gallon than automatic transmitted cars, and the results are statistically significant.
+The regression suggests that, "wt" and "qsec" variables remaining constant, manual transmitted cars can drive `r summary(model)$coef[4]` more miles per gallon on average than automatic transmitted cars, and the results are statistically significant.
+
+```{r}
+confint(model)
+```
+
+More accurately, we are 95% confident that the difference in miles per gallon between manual and automatic transmitted cars lies somewhere in the interval [`r as.numeric(confint(model)[4, ][1])`, `r as.numeric(confint(model)[4, ][2])`].
 
 ## Residuals and diagnostics
 
 ### Residual analysis
 
-We begin by studying the residual plots (see Figure 3 in the appendix). These plots allow us to verify some assumptions made before.
+We begin by studying the residual plots (see Figure 3 in the appendix). These plots allow us to verify some assumptions made before. We have to point that due to the small sample size 
 
-3. The Residuals vs Fitted plot seem to verify the independance assumption as the points are randomly scattered on the plot.
-1. The Normal Q-Q plot seem to indicate that the residuals are normally distributed as the points hug the line closely.
-2. The Scale-Location plot seem to verify the constant variance assumption as the points fall in a constant band.
+1. The Residuals vs Fitted plot seem to verify the independance assumption as the points are randomly scattered on the plot (a Durbin-Watson test further confirms this assumption at the 0.05 level).
+2. The Normal Q-Q plot seem to indicate that the residuals are normally distributed as the points hug the line closely (a Shapiro-Wilk test further confirms this assumption at the 0.05 level).
+3. The Scale-Location plot seem to verify the constant variance assumption as the points fall in a constant band (a Breusch-Pagan test further confirms this assumption at the 0.05 level).
 
 ### Leverages
 
@@ -144,7 +150,11 @@ pairs(mtcars, panel = panel.smooth, main = "Pairs graph for MTCars")
 
 ```{r fig.width = 10, fig.height = 10}
 par(mfrow = c(2, 2))
-plot(model)
+plot(fitted(model), residuals(model), xlab = "Fitted values", ylab = "Residuals", main = "Residuals vs Fitted")
+abline(h = 0, col = "red")
+qqnorm(residuals(model))
+qqline(residuals(model), col = "red")
+plot(fitted(model), sqrt(abs(rstandard(model))), xlab = "Fitted values", ylab = "Square Root of Standardized Residuals", main = "Scale-Location")
 ```
 
 ```{r}
@@ -152,4 +162,16 @@ library(lmtest)
 bptest(model)
 ```
 
-We do not reject the null hypothesis that the variance is the same for all observations ay the 0.005 level. There is relatively weak evidence against the assumption of constant variance.
+We do not reject the null hypothesis that the variance is the same for all observations at the 0.05 level. There is relatively weak evidence against the assumption of constant variance.
+
+```{r}
+dwtest(model, alternative = "two.sided")
+```
+
+In this case we do not reject the null hypothesis at the 0.05 level; there is very little evidence of nonzero autocorrelation in the residuals.
+
+```{r}
+shapiro.test(residuals(model))
+```
+
+We do not reject the null hypothesis that the residuals are normal at the 0.05 level.
