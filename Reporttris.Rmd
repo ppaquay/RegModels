@@ -11,7 +11,7 @@ Motor Trends : Automatic or Manual transmission for better mileage ?
 
 ## Executive summary
 
-In this report we try to answer the question : "Is automatic or manual transmission better for mpg ?". To answer this question we used a dataset from the 1974 Motor Trend US magazine, and ran some statistical tests and a regression analysis. On one hand the statistical tests show (without controlling for other car design features) a difference in mean of about 7 miles more for the manual transmitted cars. On the other hand, the regression analysis indicate that, given that weight and 1/4 mile time are held constant, manual transmitted cars are $(14.079 - 4.141 \times \mathrm{weight})$ miles per gallon better than automatic transmitted cars and also that this result is significant. So for example, a 2000lb manual transmitted car can drive 5.79 more miles per gallon than a 2000lb automatic transmitted one with the same 1/4 mile time.
+In this report we try to answer the question : "Is automatic or manual transmission better for mpg ?". To answer this question we used a dataset from the 1974 Motor Trend US magazine, and ran some statistical tests and a regression analysis. On one hand the statistical tests show (without controlling for other car design features) a difference in mean of about 7 miles more for the manual transmitted cars. On the other hand, the regression analysis indicate that, given that weight and 1/4 mile time are held constant, manual transmitted cars are 14.079 - 4.141 * weight miles per gallon better than automatic transmitted cars and also that this result is significant. So for example, a 2000lb manual transmitted car can drive 5.79 more miles per gallon than a 2000lb automatic transmitted one with the same 1/4 mile time.
 
 ## Cleaning data
 
@@ -46,7 +46,7 @@ We then plot the relationships between all the variables of the dataset (see Fig
 
 ## Inference
 
-We may also run a some tests to compare the mpg means between automatic and manual transmissions.
+We may also run some tests to compare the mpg means between automatic and manual transmissions.
 
 ### T-test
 
@@ -79,27 +79,30 @@ model.init <- step(model.all, direction = "backward", k = log(n))
 ```
 
 ```{r}
-summary(model.init)
+summary(model.init)$coefficients
 ```
 
 The BIC algorithm tells us to consider "wt" and "qsec" as confounding variables. The individual p-values allows us to reject the hypothesis that the coefficients are null. The adjusted r-squared is `r summary(model.init)$adj.r.squared`, so we may conclude that more than `r round(summary(model.init)$adj.r.squared * 100)`% of the variation is explained by the model.
 
-However, if we take a look a the scatter plot of "mpg" vs. "wt" by transmission type (see Figure 3 in the appendix) we may notice that the "wt" variable depends on whether or not the car is automatic transmitted (as automatic transmitted cars tend to weigh more than manual transmitted ones). This fact suggests that it would be appropriate to include an interaction term between "wt" and "am".
+However, if we take a look a the scatter plot of "mpg" vs. "wt" by transmission type (see Figure 3 in the appendix) we may notice that the "wt" variable depends on whether or not the car is automatic transmitted (as automatic transmitted cars tend to weigh more than manual transmitted ones). Apparently, manual transmission only confers an advantage to lighter cars. If the car is heavier than approximately 2.75 tons, an automatic transmission is actually more fuel-efficient than a manual one. This fact suggests that it would be appropriate to include an interaction term between "wt" and "am".
 
 ```{r}
 model <- lm(mpg ~ wt + qsec + am + wt:am, data = mtcars)
-summary(model)
+summary(model)$coefficients
 ```
 
 The adjusted r-squared is now `r summary(model)$adj.r.squared`, so we may conclude that more than `r round(summary(model)$adj.r.squared * 100)`% of the variation is explained by the model. We will choose this model as our final model.
 
 ```{r}
-anova(lm(mpg ~ am, data = mtcars), lm(mpg ~ am + wt, data = mtcars), model.init, model)
+anova <- anova(lm(mpg ~ am, data = mtcars), lm(mpg ~ am + wt, data = mtcars), model.init, model)
+cbind(anova[1], anova[2], anova[3], anova[4], anova[5], anova[6])
 ```
 
 We may notice that when we compare the model with only "am" as independant variable and our chosen model, we reject the null hypothesis that the variables "wt", "qsec" and "wt:am" don't contribute to the accuracy of the model.
 
 The regression suggests that, "wt" and "qsec" variables remaining constant, manual transmitted cars can drive `r summary(model)$coef[4]` + `r summary(model)$coef[5]` * "wt" more miles per gallon than automatic transmitted cars, and the results are statistically significant. This means that for example, a 1000lbs manual transmitted car can drive `r summary(model)$coef[4] + summary(model)$coef[5] * 1` more miles per gallon than a same weight automatic transmitted one with the same 1/4 mile time.
+
+Examining these coefficients allows us to determine exactly the point at which the fuel efficieny plots for automatic versus manual cars intersect, this point occurs at a weight of `r (-summary(model)$coef[4] / summary(model)$coef[5]) * 1000`lbs. We can explain this fact by noticing that almost all of the manual transmission cars are quite small. Therefore, even though cars with automatic transmission might get better mileage across almost all weights, the sample of manual cars consists almost solely of those weights in which manual cars win out.
 
 ## Residuals and diagnostics
 
@@ -154,7 +157,7 @@ title(main = "Mpg by transmission type", xlab = "am", ylab = "mpg")
 pairs(mtcars, panel = panel.smooth, main = "Pairs graph for MTCars")
 ```
 
-### Figure 3 : Scatter plot of "mpg" vs. "wt" by transmission type
+### Figure 3 : Scatter plot of "mpg" and "qsec" vs. "wt" by transmission type
 
 ```{r  fig.height = 10, fig.width = 10}
 plot(mtcars$wt, mtcars$mpg, col = mtcars$am, pch = 19, xlab = "weight", ylab = "mpg")
