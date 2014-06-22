@@ -147,7 +147,7 @@ cbind(anova[1], anova[2], anova[3], anova[4], anova[5], anova[6])
 
 We may notice that when we compare the model with only "am" as independant variable and our chosen model, we reject the null hypothesis that the variables "wt", "qsec" and "wt:am" don't contribute to the accuracy of the model.
 
-The regression suggests that, "wt" and "qsec" variables remaining constant, manual transmitted cars can drive 14.0794 + -4.1414 * "wt" more miles per gallon on average than automatic transmitted cars, and the results are statistically significant. This means that for example, a 1000lbs manual transmitted car can drive 9.9381 more miles per gallon than a same weight automatic transmitted one with the same 1/4 mile time.
+The regression suggests that, "wt" and "qsec" variables remaining constant, manual transmitted cars can drive 14.0794 + -4.1414 * "wt" more miles per gallon on average than automatic transmitted cars, and the results are statistically significant. This means that for example, a 1000lbs manual transmitted car can drive 9.9381 more miles per gallon than a same weight automatic transmitted one with the same 1/4 mile time and a a 4000lbs manual transmitted car can drive 2.4861 less miles per gallon than a same weight automatic transmitted one with the same 1/4 mile time.
 
 Examining these coefficients allows us to determine exactly the point at which the fuel efficieny plots for automatic versus manual cars intersect, this point occurs at a weight of 3399.6977lbs. We can explain this fact by noticing that almost all of the manual transmission cars are quite small. Therefore, even though cars with automatic transmission might get better mileage across almost all weights, the sample of manual cars consists almost solely of those weights in which manual cars win out.
 
@@ -170,9 +170,9 @@ More accurately, we are 95% confident that the difference in miles per gallon be
 
 We begin by studying the residual plots (see Figure 4 in the appendix). These plots allow us to verify some assumptions made before.
 
-3. The Residuals vs Fitted plot seem to verify the independance assumption as the points are randomly scattered on the plot.
-1. The Normal Q-Q plot seem to indicate that the residuals are normally distributed as the points hug the line pretty closely.
-2. The Scale-Location plot seem to verify the constant variance assumption as the points fall in a constant band.
+1. The Residuals vs Fitted plot seem to verify the independance assumption as the points are randomly scattered on the plot (a Durbin-Watson test further confirms this assumption at the 0.05 level).
+2. The Normal Q-Q plot seem to indicate that the residuals are normally distributed as the points hug the line pretty closely (a Shapiro-Wilk test further confirms this assumption at the 0.05 level).
+3. The Scale-Location plot seem to verify the constant variance assumption as the points fall in a constant band (a Breusch-Pagan test further confirms this assumption at the 0.05 level).
 
 ### Leverages
 
@@ -235,7 +235,7 @@ pairs(mtcars, panel = panel.smooth, main = "Pairs graph for MTCars")
 
 ![plot of chunk unnamed-chunk-16](figure/unnamed-chunk-16.png) 
 
-### Figure 3 : Scatter plot of "mpg" and "qsec" vs. "wt" by transmission type
+### Figure 3 : Scatter plot of "mpg" vs. "wt" by transmission type
 
 
 ```r
